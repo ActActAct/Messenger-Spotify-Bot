@@ -1,4 +1,5 @@
 import requests
+import json
 
 def get_access_token(client_id, client_secret):
     url = "https://accounts.spotify.com/api/token"
@@ -15,9 +16,12 @@ def get_access_token(client_id, client_secret):
     response.raise_for_status()
     return response.json()['access_token']
 
+
 def fetch_top_song_from_playlist(access_token, playlist_link):
     headers = {'Authorization': f'Bearer {access_token}'}
     response = requests.get(playlist_link, headers=headers)
+    with open("output.txt", "w") as file:
+        json.dump(response.json(), file, indent=4)
     response.raise_for_status()
     data = response.json()
     top_song = data['tracks']['items'][0]['track']
@@ -36,7 +40,10 @@ def remove_song_from_playlist(access_token, playlist_id, song_uri, snapshot_id):
         "snapshot_id": snapshot_id
     }
 
+    print(url, headers, data)
     response = requests.delete(url, headers=headers, json=data)
+
+    print(response)
     return response.status_code == 200
 
 if __name__ == "__main__":
