@@ -1,6 +1,7 @@
 import requests
 import json
 
+
 def get_access_token(client_id, client_secret):
     url = "https://accounts.spotify.com/api/token"
     headers = {
@@ -25,9 +26,7 @@ def fetch_top_song_from_playlist(access_token, playlist_link):
     response.raise_for_status()
     data = response.json()
     top_song = data['tracks']['items'][0]['track']
-    snapshot_id = data['snapshot_id']
-    song_uri = top_song['uri']
-    return top_song, snapshot_id, song_uri
+    return top_song
 
 def remove_song_from_playlist(access_token, playlist_id, song_uri, snapshot_id):
     url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
@@ -53,7 +52,7 @@ if __name__ == "__main__":
     PLAYLIST_LINK = f'https://api.spotify.com/v1/playlists/{PLAYLIST_ID}?market=US'
 
     access_token = get_access_token(CLIENT_ID, CLIENT_SECRET)
-    top_song, snapshot_id, song_uri = fetch_top_song_from_playlist(access_token, PLAYLIST_LINK)
+    top_song = fetch_top_song_from_playlist(access_token, PLAYLIST_LINK)
 
     song_name = top_song['name']
     artist_name = top_song['artists'][0]['name']
@@ -63,8 +62,4 @@ if __name__ == "__main__":
     print(f"Artist Name: {artist_name}")
     print(f"Song Link: {song_link}")
 
-    if remove_song_from_playlist(access_token, PLAYLIST_ID, song_uri, snapshot_id):
-        print("Song successfully removed from the playlist!")
-    else:
-        print("Error occurred while removing the song from the playlist.")
 
