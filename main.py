@@ -1,5 +1,5 @@
 import requests
-import json
+import datetime
 
 
 def get_access_token(client_id, client_secret):
@@ -18,32 +18,20 @@ def get_access_token(client_id, client_secret):
     return response.json()['access_token']
 
 
-def fetch_top_song_from_playlist(access_token, playlist_link):
+def fetch_song_from_playlist(access_token, playlist_link):
+
     headers = {'Authorization': f'Bearer {access_token}'}
     response = requests.get(playlist_link, headers=headers)
-    with open("output.txt", "w") as file:
-        json.dump(response.json(), file, indent=4)
     response.raise_for_status()
     data = response.json()
-    top_song = data['tracks']['items'][0]['track']
-    return top_song
 
-def remove_song_from_playlist(access_token, playlist_id, song_uri, snapshot_id):
-    url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
-    headers = {
-        'Authorization': f'Bearer {access_token}',
-        'Content-Type': 'application/json'
-    }
-    data = {
-        "tracks": [{"uri": song_uri}],
-        "snapshot_id": snapshot_id
-    }
+    return song_of_the_week(data)
 
-    print(url, headers, data)
-    response = requests.delete(url, headers=headers, json=data)
 
-    print(response)
-    return response.status_code == 200
+def song_of_the_week(data):
+    start_week = 37  # for september 16
+    current_week = datetime.datetime.today().isocalendar()[1]
+    return data['tracks']['items'][current_week - start_week]['track']
 
 if __name__ == "__main__":
     CLIENT_ID = "5972487482b145d183008a0ff7af682e"
@@ -52,11 +40,11 @@ if __name__ == "__main__":
     PLAYLIST_LINK = f'https://api.spotify.com/v1/playlists/{PLAYLIST_ID}?market=US'
 
     access_token = get_access_token(CLIENT_ID, CLIENT_SECRET)
-    top_song = fetch_top_song_from_playlist(access_token, PLAYLIST_LINK)
+    song = fetch_song_from_playlist(access_token, PLAYLIST_LINK)
 
-    song_name = top_song['name']
-    artist_name = top_song['artists'][0]['name']
-    song_link = top_song['external_urls']['spotify']
+    song_name = song['name']
+    artist_name = song['artists'][0]['name']
+    song_link = song['external_urls']['spotify']
 
     print(f"Song Name: {song_name}")
     print(f"Artist Name: {artist_name}")
