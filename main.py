@@ -33,6 +33,7 @@ def song_of_the_week(data):
     current_week = datetime.datetime.today().isocalendar()[1]
     return data['tracks']['items'][current_week - start_week]['track']
 
+
 if __name__ == "__main__":
     CLIENT_ID = "5972487482b145d183008a0ff7af682e"
     CLIENT_SECRET = "7411610ad87f42b9958d7472531dee9c"
